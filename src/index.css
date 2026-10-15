@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Tema dasar: hitam-putih, simple ===== */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: #f4f4f4;
+  color: #000;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== Wadah blok Scratch ===== */
+.sb-wrap {
+  overflow-x: auto;
+  background: #fff;
+}
+
+.sb-wrap svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ===== Halaman print: 1 section = 1 lembar ===== */
+.print-page {
+  break-inside: avoid;
+}
+
+@page {
+  size: A4;
+  margin: 11mm 12mm;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+  }
+
+  /* Sembunyikan navigasi & tombol saat print */
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Tiap section jadi 1 halaman A4 */
+  .print-page {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    break-inside: avoid !important;
+    break-after: page !important;
+  }
+
+  .print-page:last-child {
+    break-after: auto !important;
+  }
+
+  .sb-wrap {
+    overflow: visible;
+  }
+
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+}
