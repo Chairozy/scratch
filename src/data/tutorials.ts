@@ -14,7 +14,7 @@ export interface TutorialSection {
   steps?: string[];
   /** Penjelasan blok + alasan + kebutuhan. Tampil menggantikan langkah bila ada. */
   guide?: BlockGuide[];
-  /** Judul/keterangan untuk gambar blok. */
+  map?: boolean;
   codeTitle: string;
   /** Kode sintaks scratchblocks (blok berbahasa Inggris). */
   code: string;
@@ -25,6 +25,8 @@ export interface TutorialSection {
 export interface SpriteCast {
   name: string;
   image: string;
+  x?: number;
+  y?: number;
 }
 
 export interface Tutorial {
@@ -48,10 +50,10 @@ export const tutorials: Tutorial[] = [
     level: "Pemula",
     minutes: 40,
     cast: [
-      { name: "Kucing", image: "sprites/kucing.svg" },
-      { name: "Anjing", image: "sprites/anjing.svg" },
-      { name: "Kelinci", image: "sprites/kelinci.svg" },
-      { name: "Burung", image: "sprites/burung.svg" },
+      { name: "Kucing", image: "sprites/kucing.svg", x: 0, y: 0 },
+      { name: "Anjing", image: "sprites/anjing.svg", x: -150, y: -50 },
+      { name: "Kelinci", image: "sprites/kelinci.svg", x: 150, y: -50 },
+      { name: "Burung", image: "sprites/burung.svg", x: 0, y: 100 },
     ],
     backdrop: { name: "Hutan (Forest)", image: "backdrops/forest.png" },
     goals: [
@@ -99,6 +101,7 @@ say [Aku di tengah panggung!] for (2) seconds`,
       {
         title: "Berpindah dengan Go To dan Glide",
         goal: "Mengunjungi tiga hewan dengan teleport go to dan luncuran glide.",
+        map: true,
         guide: [
           {
             block: "go to x: (-150) y: (-50)",
@@ -123,9 +126,9 @@ say [Aku di tengah panggung!] for (2) seconds`,
         code: `when flag clicked
 go to x: (-150) y: (-50)
 say [Halo Anjing!] for (2) seconds
-glide (1) secs to x: (0) y: (100)
-say [Halo Kelinci!] for (2) seconds
 glide (1) secs to x: (150) y: (-50)
+say [Halo Kelinci!] for (2) seconds
+glide (1) secs to x: (0) y: (100)
 say [Halo Burung!] for (2) seconds`,
         tip: "Go to = teleport langsung tanpa gerakan. Glide = meluncur halus selama sekian detik.",
       },
@@ -159,7 +162,7 @@ say [Halo Burung!] for (2) seconds`,
           },
         ],
         codeTitle: "Susun blok seperti ini (di sprite Kelinci):",
-        code: `when flag clicked
+        code: `when this sprite clicked
 set size to (50) %
 say [Aku masih kecil!] for (2) seconds
 repeat (5)
@@ -168,6 +171,188 @@ wait (0.3) seconds
 end
 say [Sekarang aku besar!] for (2) seconds`,
         tip: "Set size = tentukan ukuran pasti (100 % ukuran normal). Change size by = tambah atau kurangi sedikit demi sedikit.",
+      },
+    ],
+  },
+  {
+    id: "guess-the-number",
+    title: "Guess the Number",
+    desc: "Proyek tebak angka: Wizard bertanya, Abby membacakan jawaban, lalu Wizard menilai dengan if-else dan operator perbandingan.",
+    level: "Menengah",
+    minutes: 45,
+    cast: [
+      { name: "Abby (pembaca jawaban)", image: "sprites/abby.svg", x: -120, y: 0 },
+      { name: "Wizard (penanya)", image: "sprites/wizard.svg", x: 120, y: 0 },
+    ],
+    backdrop: { name: "Papan Tulis (Chalkboard)", image: "backdrops/chalkboard.png" },
+    goals: [
+      "Bertanya ke pemain dengan ask block",
+      "Membacakan jawaban sebelum dinilai",
+      "Menilai dengan if-else dan operator perbandingan",
+    ],
+    sections: [
+      {
+        title: "Bertanya dengan Ask Block",
+        goal: "Wizard menanyakan tebakan angka lalu Abby membacakan jawabannya.",
+        map: true,
+        guide: [
+          {
+            block: "when flag clicked",
+            warna: "#FFBF00",
+            fungsi: "Memulai permainan dan menyiapkan papan tulis sebagai latar.",
+            alasan: "Semua skrip butuh satu tombol mulai yang sama agar Abby dan Wizard bergerak berurutan.",
+          },
+          {
+            block: "switch backdrop to [Chalkboard v]",
+            warna: "#9966FF",
+            fungsi: "Mengganti latar menjadi papan tulis layaknya kuis di kelas.",
+            alasan: "Suasana kuis membuat pemain paham bahwa ia sedang ditantang menebak sesuatu.",
+          },
+          {
+            block: "ask [Tebak angka 1 sampai 10!] and wait",
+            warna: "#5CB1D6",
+            fungsi: "Menampilkan kotak pertanyaan dan menunggu pemain mengetik jawabannya.",
+            alasan: "Kata and wait wajib ada — tanpanya program lanjut duluan sebelum pemain sempat mengetik sehingga jawabannya kosong.",
+          },
+          {
+            block: "broadcast [sebutkan jawaban v] and wait",
+            warna: "#FFBF00",
+            fungsi: "Memanggil Abby untuk membacakan jawaban, lalu menunggu sampai ia selesai bicara.",
+            alasan: "Kata and wait memastikan bacaan Abby selesai dulu sebelum penilaian lanjut — tanpanya cek jawaban jalan duluan dan menimpa suara Abby.",
+          },
+        ],
+        codeTitle: "Susun blok seperti ini (di sprite Wizard):",
+        code: `when flag clicked
+switch backdrop to [Chalkboard v]
+ask [Tebak angka 1 sampai 10!] and wait
+broadcast [sebutkan jawaban v] and wait`,
+        tip: "Ketik sebuah angka saat kotak tanya muncul, lalu dengarkan Abby membacakannya sebelum Wizard menilai.",
+      },
+      {
+        title: "Abby Membacakan Jawaban",
+        goal: "Abby membacakan tebakan pemain sebelum Wizard menilai.",
+        guide: [
+          {
+            block: "when I receive [sebutkan jawaban v]",
+            warna: "#FFBF00",
+            fungsi: "Membuat Abby merespons hanya setelah Wizard selesai bertanya.",
+            alasan: "Abby hanya boleh bicara bila sudah ada tebakan — kalau jalan duluan, yang dibacakan adalah jawaban kosong.",
+          },
+          {
+            block: "(answer)",
+            warna: "#5CB1D6",
+            fungsi: "Mengambil ketikan pemain yang tersimpan di kotak answer.",
+            alasan: "Jawaban hanya diketik sekali oleh pemain, jadi Abby wajib membacanya dari kotak ini.",
+          },
+          {
+            block: "say (answer) for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Membacakan tebakan dengan suara agar terdengar semua orang.",
+            alasan: "Tebakan yang terbaca memastikan pemain yakin jawabannya masuk — dan and wait di Wizard menjamin bacaan ini selesai sebelum dinilai.",
+          },
+        ],
+        codeTitle: "Susun blok seperti ini (di sprite Abby):",
+        code: `when I receive [sebutkan jawaban v]
+say (answer) for (2) seconds`,
+        tip: "Klik bendera hijau, ketik angka, dan dengarkan Abby membacakannya.",
+      },
+      {
+        title: "Benar atau Salah dengan If-Else",
+        goal: "Sambungan skrip Wizard setelah broadcast and wait: menilai tebakan benar bila angkanya 7.",
+        guide: [
+          {
+            block: "if <(answer) = (7)> then ... else ... end",
+            warna: "#FFAB19",
+            fungsi: "Bercabang dua tepat setelah Abby selesai membacakan: sapaan Tepat bila sama dengan 7, sapaan Salah bila tidak.",
+            alasan: "Komputer harus memutuskan dua nasib berbeda dari satu tebakan — inilah arti True dan False pada kondisi.",
+          },
+          {
+            block: "say [Tepat sekali! Kamu menang!] for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Mengumumkan hasil penilaian kepada pemain.",
+            alasan: "Tanpa pengumuman, pemain tidak akan pernah tahu tebakannya benar atau salah.",
+          },
+        ],
+        codeTitle: "Sambung di bawah broadcast and wait (skrip Wizard):",
+        code: `if <(answer) = (7)> then
+say [Tepat sekali! Kamu menang!] for (2) seconds
+else
+say [Salah, coba lagi!] for (2) seconds
+end`,
+        tip: "Tempel blok ini tepat di bawah broadcast and wait agar menjadi satu skrip utuh. Angka rahasianya adalah 7.",
+      },
+      {
+        title: "Petunjuk Lebih Besar dan Lebih Kecil",
+        goal: "Sambungan skrip Wizard: memberi petunjuk kebesaran atau kekecilan.",
+        guide: [
+          {
+            block: "<(answer) > (7)>",
+            warna: "#59C059",
+            fungsi: "Menguji apakah tebakan lebih besar dari angka rahasia.",
+            alasan: "Pemain butuh tahu arah salahnya — tanpa petunjuk ini ia hanya menebak buta berulang-ulang.",
+          },
+          {
+            block: "<(answer) < (7)>",
+            warna: "#59C059",
+            fungsi: "Menguji apakah tebakan lebih kecil dari angka rahasia.",
+            alasan: "Dua operator ini saling melengkapi: yang tidak besar dan tidak kecil, pasti pas.",
+          },
+          {
+            block: "if di dalam else",
+            warna: "#FFAB19",
+            fungsi: "Menyusun tiga nasib berurutan: kebesaran, kekecilan, lalu tepat.",
+            alasan: "Satu if hanya menampung dua nasib, jadi untuk tiga kemungkinan butuh if kedua yang bersarang di dalam else.",
+          },
+          {
+            block: "say [Tepat sekali! Kamu menang!] for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Merayakan kemenangan saat tebakan tidak besar dan tidak kecil.",
+            alasan: "Cabang terakhir ini hanya tercapai bila kedua kondisi sebelumnya salah — artinya tebakan pasti 7.",
+          },
+        ],
+        codeTitle: "Ganti cek di atas dengan versi ini (skrip Wizard):",
+        code: `if <(answer) > (7)> then
+say [Kebesaran! Coba yang lebih kecil.] for (2) seconds
+else
+if <(answer) < (7)> then
+say [Kekecilan! Coba yang lebih besar.] for (2) seconds
+else
+say [Tepat sekali! Kamu menang!] for (2) seconds
+end
+end`,
+        tip: "Ganti angka 7 dengan angka lain untuk mengubah angka rahasia permainanmu.",
+      },
+      {
+        title: "Tantangan 3x Tebakan",
+        goal: "Merakit permainan utuh: 3 kesempatan, berhenti saat menang, gagal bila habis.",
+        guide: [
+          {
+            block: "repeat (3)",
+            warna: "#FFAB19",
+            fungsi: "Menjadi bingkai 3 kesempatan — badan repeat yang kosong diisi dengan kode dari halaman sebelumnya (ask, broadcast and wait, dan cek jawaban).",
+            alasan: "Tanpa batas, pemain bisa menebak selamanya dan tantangannya hilang — 3x membuat tiap tebakan berharga.",
+          },
+          {
+            block: "stop [all v]",
+            warna: "#FFAB19",
+            fungsi: "Menghentikan seluruh permainan begitu tebakan tepat.",
+            alasan: "Kemenangan harus mengakhiri game — kalau tidak dihentikan, program akan lanjut meminta tebakan lagi.",
+          },
+          {
+            block: "say [Kamu gagal menjadi penyihir Master of Mind!] for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Mengumumkan kegagalan setelah 3 kesempatan habis tanpa tebakan tepat.",
+            alasan: "Blok ini diletakkan di luar repeat sehingga hanya tercapai bila perulangan selesai tanpa stop — artinya pemain gagal 3x.",
+          },
+        ],
+        codeTitle: "Skrip lengkap permainan (di sprite Wizard):",
+        code: `when flag clicked
+switch backdrop to [Chalkboard v]
+repeat (3)
+
+end
+say [Kamu gagal menjadi penyihir Master of Mind!] for (2) seconds`,
+        tip: "Salin kode halaman sebelumnya ke dalam badan repeat yang kosong, lalu coba sengaja salah 3x untuk melihat pesan gagalnya. Skrip Abby tidak berubah.",
       },
     ],
   },

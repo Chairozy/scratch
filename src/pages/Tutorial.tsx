@@ -1,5 +1,6 @@
 import { For, Show, type Component } from "solid-js";
 import ScratchBlocks from "../components/ScratchBlocks";
+import StageMap from "../components/StageMap";
 import { getTutorial, type BlockGuide } from "../data/tutorials";
 
 interface TutorialProps {
@@ -186,6 +187,31 @@ const Tutorial: Component<TutorialProps> = (props) => {
                   <h2 class="mt-2 text-2xl font-extrabold tracking-tight">
                     {i() + 1}. {s.title}
                   </h2>
+
+                  <Show when={s.map}>
+                    <div class="mt-4">
+                      <h3 class="text-sm font-extrabold uppercase tracking-wide">
+                        Peta posisi di panggung
+                      </h3>
+                      <div class="mx-auto mt-2 max-w-md">
+                        <StageMap
+                          backdrop={t().backdrop?.image}
+                          spots={(t().cast ?? []).flatMap((c) =>
+                            c.x !== undefined && c.y !== undefined
+                              ? [
+                                  {
+                                    name: c.name,
+                                    image: c.image,
+                                    x: c.x,
+                                    y: c.y,
+                                  },
+                                ]
+                              : [],
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </Show>
 
                   <Show
                     when={t().layout === "two-col"}
