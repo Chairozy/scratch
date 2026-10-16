@@ -40,6 +40,7 @@ export interface Tutorial {
   layout?: "two-col";
   cast?: SpriteCast[];
   backdrop?: SpriteCast;
+  embedUrl?: string;
 }
 
 export const tutorials: Tutorial[] = [
@@ -180,6 +181,7 @@ say [Sekarang aku besar!] for (2) seconds`,
     desc: "Proyek tebak angka: Wizard bertanya, Abby membacakan jawaban, lalu Wizard menilai dengan if-else dan operator perbandingan.",
     level: "Menengah",
     minutes: 45,
+    embedUrl: "https://scratch.mit.edu/projects/1392272727/embed",
     cast: [
       { name: "Abby (pembaca jawaban)", image: "sprites/abby.svg", x: -120, y: 0 },
       { name: "Wizard (penanya)", image: "sprites/wizard.svg", x: 120, y: 0 },
@@ -353,6 +355,157 @@ repeat (3)
 end
 say [Kamu gagal menjadi penyihir Master of Mind!] for (2) seconds`,
         tip: "Salin kode halaman sebelumnya ke dalam badan repeat yang kosong, lalu coba sengaja salah 3x untuk melihat pesan gagalnya. Skrip Abby tidak berubah.",
+      },
+    ],
+  },
+  {
+    id: "encode-5-digit",
+    title: "Encode: Tebak Kode 5 Digit",
+    desc: "Proyek kode rahasia bersama Wizard dan Abby: tebak 5 digit dan terima respon O (tepat), Q (angka benar posisi salah), atau X (salah).",
+    level: "Menengah",
+    minutes: 50,
+    cast: [
+      { name: "Abby (penebak)", image: "sprites/abby.svg", x: -120, y: 0 },
+      { name: "Wizard (penjaga kode)", image: "sprites/wizard.svg", x: 120, y: 0 },
+    ],
+    backdrop: { name: "Papan Tulis (Chalkboard)", image: "backdrops/chalkboard.png" },
+    goals: [
+      "Menyimpan kode rahasia 5 digit di variabel",
+      "Membaca tiap digit dengan letter of dan repeat",
+      "Menilai O, Q, X dengan if dan contains",
+    ],
+    sections: [
+      {
+        title: "Menyimpan Kode Rahasia",
+        goal: "Menyiapkan variabel kode rahasia lalu meminta tebakan pemain.",
+        guide: [
+          {
+            block: "set [kode rahasia v] to [24153]",
+            warna: "#FF8C1A",
+            fungsi: "Menyimpan kode 5 digit yang harus ditebak pemain.",
+            alasan: "Kode disimpan di variabel agar mudah diganti tanpa mengubah seluruh skrip.",
+          },
+          {
+            block: "set [hasil v] to []",
+            warna: "#FF8C1A",
+            fungsi: "Menyiapkan wadah kosong untuk rangkaian O, Q, X.",
+            alasan: "Hasil dibangun huruf per huruf dari kiri ke kanan, jadi harus mulai dari kosong.",
+          },
+          {
+            block: "ask [Tebak kode 5 digit rahasia!] and wait",
+            warna: "#5CB1D6",
+            fungsi: "Meminta tebakan 5 digit sekaligus menunggu pemain mengetik.",
+            alasan: "Kata and wait wajib ada — tanpanya program lanjut duluan sebelum pemain sempat mengetik.",
+          },
+        ],
+        codeTitle: "Susun blok seperti ini (di sprite Wizard):",
+        code: `when flag clicked
+set [kode rahasia v] to [24153]
+set [hasil v] to []
+ask [Tebak kode 5 digit rahasia!] and wait`,
+        tip: "Buat dulu 3 variabel (untuk semua sprite): kode rahasia, hasil, dan posisi.",
+      },
+      {
+        title: "Membaca Tiap Digit",
+        goal: "Memeriksa 5 digit satu per satu dengan repeat dan letter of.",
+        guide: [
+          {
+            block: "set [posisi v] to (1)",
+            warna: "#FF8C1A",
+            fungsi: "Mulai pemeriksaan dari digit pertama.",
+            alasan: "Komputer menghitung posisi mulai dari 1, bukan dari 0.",
+          },
+          {
+            block: "repeat (5)",
+            warna: "#FFAB19",
+            fungsi: "Mengulang pemeriksaan untuk kelima digit.",
+            alasan: "Tanpa repeat, cek yang sama harus ditulis ulang sebanyak 5 kali.",
+          },
+          {
+            block: "letter (posisi) of (answer)",
+            warna: "#59C059",
+            fungsi: "Mengambil digit ke-posisi dari tebakan pemain.",
+            alasan: "Tebakan adalah teks 5 huruf sehingga tiap digit bisa diambil satu per satu.",
+          },
+          {
+            block: "change [posisi v] by (1)",
+            warna: "#FFAB19",
+            fungsi: "Pindah ke digit berikutnya di akhir setiap pengulangan.",
+            alasan: "Tanpa ini, repeat akan memeriksa digit yang sama sebanyak 5 kali.",
+          },
+        ],
+        codeTitle: "Sambung di bawah ask (skrip Wizard):",
+        code: `set [posisi v] to (1)
+repeat (5)
+
+change [posisi v] by (1)
+end`,
+        tip: "Badan repeat yang kosong akan diisi kode penilai di halaman berikut.",
+      },
+      {
+        title: "Menilai O, Q, X",
+        goal: "Memberi O bila angka dan posisi tepat, Q bila angka benar tapi posisi salah, X bila salah.",
+        guide: [
+          {
+            block: "if <(letter (posisi) of (answer)) = (letter (posisi) of (kode rahasia))> then",
+            warna: "#FFAB19",
+            fungsi: "Menguji apakah digit tebakan sama persis dengan digit kode di posisi yang sama.",
+            alasan: "Kecocokan penuh adalah nilai tertinggi, jadi diperiksa paling dulu dan diganjar O.",
+          },
+          {
+            block: "set [hasil v] to (join (hasil) [O])",
+            warna: "#FF8C1A",
+            fungsi: "Menempelkan huruf O ke ujung rangkaian hasil.",
+            alasan: "Hasil dibangun bertahap seperti menulis dari kiri ke kanan — tiap digit menambah satu huruf.",
+          },
+          {
+            block: "<(kode rahasia) contains (letter (posisi) of (answer))?>",
+            warna: "#59C059",
+            fungsi: "Menguji apakah digit tebakan ada di dalam kode walau posisinya salah.",
+            alasan: "Inilah syarat huruf Q: angkanya benar, hanya tempatnya belum tepat.",
+          },
+          {
+            block: "else ... [X]",
+            warna: "#FFAB19",
+            fungsi: "Memberi X bila digit tidak cocok dan tidak ada di kode sama sekali.",
+            alasan: "Cabang terakhir menampung semua sisa kemungkinan — digit yang benar-benar salah.",
+          },
+        ],
+        codeTitle: "Tempel di dalam repeat halaman sebelumnya:",
+        code: `if <(letter (posisi) of (answer)) = (letter (posisi) of (kode rahasia))> then
+set [hasil v] to (join (hasil) [O])
+else
+if <(kode rahasia) contains (letter (posisi) of (answer))?> then
+set [hasil v] to (join (hasil) [Q])
+else
+set [hasil v] to (join (hasil) [X])
+end
+end`,
+        tip: "Digit ganda bisa membuat Q kurang akurat — jadikan itu tantangan berikutnya setelah game jalan!",
+      },
+      {
+        title: "Mengumumkan Kemenangan",
+        goal: "Menampilkan rangkaian O/X/Q dan merayakan bila semuanya O.",
+        guide: [
+          {
+            block: "say (join [Kode: ] (hasil)) for (4) seconds",
+            warna: "#9966FF",
+            fungsi: "Menampilkan hasil penilaian lima digit sekaligus, misalnya OXOQX.",
+            alasan: "Pemain butuh melihat semua nilainya bersamaan untuk menyusun tebakan berikutnya.",
+          },
+          {
+            block: "if <(hasil) = [OOOOO]> then",
+            warna: "#FFAB19",
+            fungsi: "Menguji apakah seluruh rangkaian hasilnya O semua.",
+            alasan: "Lima O berarti lima digit tepat semua — hanya dalam kondisi inilah kemenangan dirayakan.",
+          },
+        ],
+        codeTitle: "Sambung setelah repeat selesai (skrip Wizard):",
+        code: `say (join [Kode: ] (hasil)) for (4) seconds
+if <(hasil) = [OOOOO]> then
+say [Tepat semua! Kamu Master of Mind!] for (2) seconds
+end`,
+        tip: "Coba tebak 24153 untuk melihat lima O dan pesan kemenangannya langsung!",
       },
     ],
   },

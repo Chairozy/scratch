@@ -1,6 +1,7 @@
-import { For, Show, type Component } from "solid-js";
+import { createSignal, For, Show, type Component } from "solid-js";
 import ScratchBlocks from "../components/ScratchBlocks";
 import StageMap from "../components/StageMap";
+import { exportTutorialPptx } from "../lib/exportPptx";
 import { getTutorial, type BlockGuide } from "../data/tutorials";
 
 interface TutorialProps {
@@ -70,6 +71,18 @@ const Tutorial: Component<TutorialProps> = (props) => {
 
   const printNow = () => window.print();
 
+  const [makingPptx, setMakingPptx] = createSignal(false);
+  const downloadPptx = async () => {
+    const tut = tutorial();
+    if (!tut || makingPptx()) return;
+    setMakingPptx(true);
+    try {
+      await exportTutorialPptx(tut);
+    } finally {
+      setMakingPptx(false);
+    }
+  };
+
   return (
     <Show
       when={tutorial()}
@@ -97,6 +110,14 @@ const Tutorial: Component<TutorialProps> = (props) => {
             <div class="print-hidden mb-4 flex flex-wrap items-center justify-end gap-2">
               <button
                 type="button"
+                onClick={downloadPptx}
+                disabled={makingPptx()}
+                class="border-2 border-black bg-white px-4 py-2 text-sm font-bold disabled:opacity-50"
+              >
+                {makingPptx() ? "Membuat PPT..." : "Unduh PPT"}
+              </button>
+              <button
+                type="button"
                 onClick={printNow}
                 class="border-2 border-black bg-black px-4 py-2 text-sm font-bold text-white"
               >
@@ -105,6 +126,25 @@ const Tutorial: Component<TutorialProps> = (props) => {
             </div>
 
             {/* ===== Halaman 1: sampul + tujuan (1 lembar print) ===== */}
+            <Show when={t().embedUrl}>
+              {(url) => (
+                <div class="print-hidden mx-auto mb-4 max-w-[210mm]">
+                  <div class="border-2 border-black bg-white p-2">
+                    <div class="aspect-[485/402] w-full">
+                      <iframe
+                        src={url()}
+                        title={`Coba mainkan: ${t().title}`}
+                        allowtransparency={true}
+                        frameborder="0"
+                        scrolling="no"
+                        allowfullscreen
+                        class="h-full w-full"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Show>
             <section class="print-page mx-auto max-w-[210mm] border-2 border-black bg-white p-6 md:p-8">
               <p class="text-xs font-bold uppercase tracking-widest">
                 Tutorial Scratch
