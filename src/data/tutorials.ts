@@ -515,6 +515,7 @@ end`,
     desc: "Game lompat-lompat: cat ditarik gravitasi, meloncat otomatis saat menginjak paddle, dan paddle muncul terus dari kanan sebagai clone.",
     level: "Menengah",
     minutes: 50,
+    embedUrl: "https://scratch.mit.edu/projects/1392666609/embed",
     cast: [
       { name: "Cat (player)", image: "sprites/kucing.svg", x: -120, y: 60 },
       { name: "Paddle (platform)", image: "sprites/paddle.svg", x: 120, y: -100 },
