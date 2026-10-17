@@ -549,17 +549,17 @@ end`,
             alasan: "Tanpa direset, cat bisa tiba-tiba melesat ke atas atau bawah saat game dimainkan ulang.",
           },
           {
-            block: "go to x: (-120) y: (60)",
+            block: "go to x: (-180) y: (60)",
             warna: "#4C97FF",
-            fungsi: "Menempatkan cat di kiri atas panggung.",
-            alasan: "Posisi awal yang di atas memberi ruang jatuh, sehingga pemain langsung paham bahwa ada gravitasi.",
+            fungsi: "Menempatkan cat di sudut kiri atas panggung.",
+            alasan: "Posisi awal di atas memberi ruang jatuh, sehingga pemain langsung paham bahwa ada gravitasi.",
           },
         ],
         codeTitle: "Susun blok seperti ini (di sprite Cat):",
         code: `when flag clicked
 switch backdrop to [Blue Sky 2 v]
 set [velocity y v] to [0]
-go to x: (-120) y: (60)`,
+go to x: (-180) y: (60)`,
         tip: "Buat satu variabel baru bernama velocity y untuk seluruh sprite, lalu kosongkan centangnya agar tidak menutupi panggung.",
       },
       {
@@ -573,9 +573,9 @@ go to x: (-120) y: (60)`,
             alasan: "Gravitasi bukan sekali jalan — ia harus dihitung ulang setiap saat agar jatuhnya terasa halus, bukan melompat.",
           },
           {
-            block: "change [velocity y v] by (-0.5)",
+            block: "change [velocity y v] by (-1)",
             warna: "#FF8C1A",
-            fungsi: "Mengurangi kecepatan vertikal sebesar 0.5 setiap putaran.",
+            fungsi: "Mengurangi kecepatan vertikal sebesar 1 setiap putaran.",
             alasan: "Inilah inti gravitasi: makin lama jatuh, makin besar tambahan kecepatan ke bawah — cat makin cepat jatuh.",
           },
           {
@@ -587,10 +587,10 @@ go to x: (-120) y: (60)`,
         ],
         codeTitle: "Sambung di bawah go to:",
         code: `forever
-change [velocity y v] by (-0.5)
+change [velocity y v] by (-1)
 change y by (velocity y)
 end`,
-        tip: "Klik bendera lalu lihat cat jatuh perlahan. Kalau masih terlalu cepat, ubah -0.5 menjadi -0.3.",
+        tip: "Klik bendera lalu lihat cat jatuh. Kalau terasa terlalu cepat, ubah -1 menjadi -0.5.",
       },
       {
         title: "Loncat Otomatis di Paddle",
@@ -603,37 +603,49 @@ end`,
             alasan: "Blok ini menjadi pengganti tombol lompat — pemain tidak menekan apa pun, cukup mendarat di paddle.",
           },
           {
-            block: "set [velocity y v] to [8]",
+            block: "set [velocity y v] to [20]",
             warna: "#FF8C1A",
-            fungsi: "Melemparkan cat ke atas dengan kecepatan 8.",
-            alasan: "Nilai 8 cukup besar untuk menandingi gravitasi, jadi cat terlihat meloncat tinggi sebelum jatuh lagi.",
+            fungsi: "Melemparkan cat ke atas dengan kecepatan 20.",
+            alasan: "Lonjakan harus jauh lebih besar daripada gravitasi -1, jadi cat terlihat meloncat tinggi sebelum jatuh lagi.",
           },
         ],
         codeTitle: "Tambahkan di dalam forever (skrip Cat):",
         code: `forever
-change [velocity y v] by (-0.5)
+change [velocity y v] by (-1)
 change y by (velocity y)
 if <touching [Paddle v]?> then
-set [velocity y v] to [8]
+set [velocity y v] to [20]
 end
 end`,
         tip: "Uji dengan cara menjatuhkan cat tepat di atas paddle — cat harus memantul naik sendiri.",
       },
       {
         title: "Bergerak Hanya ke Kiri dan ke Kanan",
-        goal: "Mengendalikan cat dengan panah kiri dan kanan tanpa mengganggu gravitasi.",
+        goal: "Mengendalikan cat dengan if key pressed di dalam forever, tanpa mengganggu gravitasi.",
         guide: [
           {
-            block: "when [right arrow v] key pressed",
-            warna: "#FFBF00",
-            fungsi: "Menjalankan skrip saat tombol panah kanan ditekan.",
-            alasan: "Tombol panah adalah pilihan paling alami untuk game lompat; tidak perlu menambah tombol lain.",
+            block: "forever",
+            warna: "#FFAB19",
+            fungsi: "Memeriksa tombol panah terus-menerus selama game berjalan.",
+            alasan: "Tombol bisa ditekan kapan saja, jadi pengecekannya harus berulang — bukan hanya sekali di awal.",
+          },
+          {
+            block: "if <key [right arrow v] pressed?> then",
+            warna: "#FFAB19",
+            fungsi: "Menguji apakah tombol panah kanan sedang ditekan.",
+            alasan: "Berbeda dengan when key pressed yang jalan sekali, blok if membuat cat terus bergerak selama tombol ditahan.",
           },
           {
             block: "change x by (6)",
             warna: "#4C97FF",
-            fungsi: "Menggeser cat ke kanan enam langkah.",
-            alasan: "Angka 6 membuat perpindahan terasa cepat tetapi masih bisa diarahkan dengan tepat.",
+            fungsi: "Menggeser cat ke kanan enam langkah tiap putaran.",
+            alasan: "Karena forever berjalan sangat cepat, angka kecil seperti 6 sudah terasa halus dan cukup cepat.",
+          },
+          {
+            block: "if <key [left arrow v] pressed?> then",
+            warna: "#FFAB19",
+            fungsi: "Menguji apakah tombol panah kiri sedang ditekan.",
+            alasan: "Kedua tombol diperiksa terpisah agar cat tetap bisa bergerak walau pemain menekan panah kiri setelah panah kanan.",
           },
           {
             block: "change x by (-6)",
@@ -642,17 +654,20 @@ end`,
             alasan: "Mengubah X saja berarti pemain sama sekali tidak bisa menambah ketinggian — gerakan tetap terbatas kiri-kanan.",
           },
         ],
-        codeTitle: "Buat dua skrip terpisah (keduanya di sprite Cat):",
-        code: `when [right arrow v] key pressed
+        codeTitle: "Buat skrip terpisah (di sprite Cat):",
+        code: `forever
+if <key [right arrow v] pressed?> then
 change x by (6)
-
-when [left arrow v] key pressed
-change x by (-6)`,
+end
+if <key [left arrow v] pressed?> then
+change x by (-6)
+end
+end`,
         tip: "Jangan pernah mengubah Y di skrip ini, karena ketinggian cat sepenuhnya diatur oleh gravitasi dan lonjakan.",
       },
       {
-        title: "Tiga Paddle di Awal Layar",
-        goal: "Membuat tiga paddle pertama di x -180, -20, dan 140 memakai repeat 3.",
+        title: "Dua Paddle di Awal Layar",
+        goal: "Menyembunyikan induk lalu membuat dua paddle awal di x -120 dan x 140 memakai repeat 2.",
         guide: [
           {
             block: "when flag clicked",
@@ -661,16 +676,22 @@ change x by (-6)`,
             alasan: "Paddle harus mulai mencetak clone bersamaan dengan cat mulai jatuh, bukan setelah pemain menekan tombol lain.",
           },
           {
-            block: "go to x: (-180) y: (pick random (0) to (-160))",
+            block: "hide",
+            warna: "#9966FF",
+            fungsi: "Menyembunyikan paddle induk sejak awal.",
+            alasan: "Induk hanya bertugas mencetak clone, jadi ia tidak boleh ikut terlihat di panggung sejak detik pertama.",
+          },
+          {
+            block: "go to x: (-120) y: (pick random (0) to (-160))",
             warna: "#4C97FF",
-            fungsi: "Menempatkan paddle induk di titik awal paling kiri dengan ketinggian acak.",
+            fungsi: "Menempatkan paddle induk di titik awal dengan ketinggian acak.",
             alasan: "Paddle induk dipakai sebagai pencetak clone, jadi posisinya menentukan di mana clone muncul.",
           },
           {
-            block: "repeat (3)",
+            block: "repeat (2)",
             warna: "#FFAB19",
-            fungsi: "Mengulang pembuatan clone sebanyak tiga kali untuk tiga paddle awal.",
-            alasan: "Ketiga paddle awal punya skrip yang sama persis, jadi cukup ditulis satu kali lalu diulang tiga kali.",
+            fungsi: "Mengulang pembuatan clone sebanyak dua kali untuk dua paddle awal.",
+            alasan: "Kedua paddle awal punya skrip yang sama persis, jadi cukup ditulis satu kali lalu diulang dua kali.",
           },
           {
             block: "create clone of [myself v]",
@@ -679,44 +700,44 @@ change x by (-6)`,
             alasan: "Clone selalu lahir di tempat induknya berada — itulah cara mengatur posisi awal tanpa menulis koordinat satu per satu.",
           },
           {
-            block: "change x by (160)",
+            block: "change x by (260)",
             warna: "#4C97FF",
-            fungsi: "Memindahkan induk ke titik awal berikutnya, 160 langkah ke kanan.",
-            alasan: "Dari -180 bergeser 160 menjadi -20, lalu menjadi 140 — jarak 160 adalah selisih ketiga titik yang diminta.",
+            fungsi: "Memindahkan induk ke titik awal berikutnya, 260 langkah ke kanan.",
+            alasan: "Dari -120 bergeser 260 menjadi 140, jadi putaran kedua mencetak clone di titik yang diminta.",
           },
           {
             block: "set y to (pick random (0) to (-160))",
             warna: "#4C97FF",
             fungsi: "Memberi ketinggian baru sebelum clone berikutnya dibuat.",
-            alasan: "Tanpa ini, ketiga paddle awal akan berbaris rata pada ketinggian yang sama dan terlalu mudah dilewati.",
-          },
-          {
-            block: "hide",
-            warna: "#9966FF",
-            fungsi: "Menyembunyikan paddle induk, hanya clone-nya yang tampil.",
-            alasan: "Clone mewarisi sifat tersembunyi dari induknya, jadi induk harus disembunyikan lebih dulu sebelum mencetak clone.",
+            alasan: "Tanpa ini, kedua paddle awal akan berbaris rata pada ketinggian yang sama dan terlalu mudah dilewati.",
           },
         ],
         codeTitle: "Buat skrip baru di sprite Paddle:",
         code: `when flag clicked
-go to x: (-180) y: (pick random (0) to (-160))
-repeat (3)
+hide
+go to x: (-120) y: (pick random (0) to (-160))
+repeat (2)
 create clone of [myself v]
-change x by (160)
+change x by (260)
 set y to (pick random (0) to (-160))
-end
-hide`,
-        tip: "Klik bendera dan hitung: harus ada tepat tiga paddle yang langsung meluncur dari kiri, tengah, dan kanan.",
+end`,
+        tip: "Klik bendera dan hitung: harus ada tepat dua paddle yang langsung meluncur, satu dari kiri dan satu dari kanan.",
       },
       {
         title: "Paddle Baru Muncul Terus",
-        goal: "Mencetak paddle baru dari sisi kanan setiap satu detik, lalu menghapusnya saat keluar layar.",
+        goal: "Memberi jeda setengah detik, lalu mencetak paddle baru dari sisi kanan setiap satu detik.",
         guide: [
           {
             block: "go to x: (250) y: (pick random (0) to (-160))",
             warna: "#4C97FF",
             fungsi: "Memindahkan induk ke luar sisi kanan panggung sebelum mulai mencetak.",
             alasan: "X 250 berada di luar layar sehingga paddle terlihat benar-benar masuk dari kanan, bukan muncul tiba-tiba.",
+          },
+          {
+            block: "wait (0.5) seconds",
+            warna: "#FFAB19",
+            fungsi: "Memberi jeda setengah detik sebelum forever dimulai.",
+            alasan: "Dua paddle awal butuh waktu sejenak untuk meluncur dulu, supaya pemain tidak langsung kebanjiran platform.",
           },
           {
             block: "wait (1) seconds",
@@ -751,6 +772,7 @@ hide`,
         ],
         codeTitle: "Lanjutkan skrip Paddle:",
         code: `go to x: (250) y: (pick random (0) to (-160))
+wait (0.5) seconds
 forever
 create clone of [myself v]
 wait (1) seconds
@@ -789,17 +811,17 @@ delete this clone`,
         ],
         codeTitle: "Lengkapi skrip forever milik Cat:",
         code: `forever
-change [velocity y v] by (-0.5)
+change [velocity y v] by (-1)
 change y by (velocity y)
 if <touching [Paddle v]?> then
-set [velocity y v] to [8]
+set [velocity y v] to [20]
 end
 if <(y position) < (-165)> then
 say [Game Over!] for (2) seconds
 stop [all v]
 end
 end`,
-        tip: "Setelah game over, klik bendera hijau untuk bermain lagi. Coba ubah nilai loncatan 8 menjadi 10 agar cat meloncat lebih tinggi.",
+        tip: "Setelah game over, klik bendera hijau untuk bermain lagi. Coba ubah nilai loncatan 20 menjadi 25 agar cat meloncat lebih tinggi.",
       },
     ],
   },
