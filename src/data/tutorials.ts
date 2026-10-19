@@ -29,6 +29,24 @@ export interface SpriteCast {
   y?: number;
 }
 
+export interface QuizChoice {
+  id: string;
+  label: string;
+}
+
+export interface QuizGroup {
+  judul: string;
+  pilihan: QuizChoice[];
+}
+
+export interface TutorialQuiz {
+  prompt: string;
+  grup: QuizGroup[];
+  wajib: string[];
+  terlarang: string[];
+  petunjuk: string;
+}
+
 export interface Tutorial {
   id: string;
   title: string;
@@ -41,6 +59,8 @@ export interface Tutorial {
   cast?: SpriteCast[];
   backdrop?: SpriteCast;
   embedUrl?: string;
+  intro?: string;
+  quiz?: TutorialQuiz;
 }
 
 export const tutorials: Tutorial[] = [
@@ -823,6 +843,261 @@ stop [all v]
 end
 end`,
         tip: "Setelah game over, klik bendera hijau untuk bermain lagi. Coba ubah nilai loncatan 20 menjadi 25 agar cat meloncat lebih tinggi.",
+      },
+    ],
+  },
+  {
+    id: "scan-tinggi-dino",
+    title: "Scan Tinggi Dino",
+    desc: "Proyek pengukur tinggi badan: garis pemindai naik dari dasar panggung sambil menghitung berapa langkah ia menyentuh dinosaur, lalu mengumumkan hasilnya.",
+    level: "Menengah",
+    minutes: 40,
+    embedUrl: "https://scratch.mit.edu/projects/1393095756/embed",
+    intro:
+      "Di Scratch kita bisa menentukan posisi x dan y, ukuran, direction, dan lain-lain dengan angka. Tapi kita tidak memiliki pengukuran tinggi dari sebuah sprite. Karena itu kita membuat project Scan Tinggi Dino, untuk mencari tahu cara mendapatkan nilai tinggi sebuah sprite.",
+    quiz: {
+      prompt:
+        "Amati proyek “Scan Dino Height” di atas. Bagian sistem desain Scratch dan algoritma mana saja yang dipakai proyek ini? Pilih semua yang benar.",
+      petunjuk:
+        "Pilih hanya kategori blok dan algoritma yang benar-benar dipakai garis pemindai dan dino. Bagian yang tidak ada sama sekali di proyek jangan dipilih.",
+      grup: [
+        {
+          judul: "Bagian sistem desain (palet blok)",
+          pilihan: [
+            { id: "gerak", label: "Gerak (Motion)" },
+            { id: "tampilan", label: "Tampilan (Looks)" },
+            { id: "suara", label: "Suara (Sound)" },
+            { id: "kejadian", label: "Kejadian (Events)" },
+            { id: "kontrol", label: "Kontrol (Control)" },
+            { id: "sensor", label: "Sensor (Sensing)" },
+            { id: "operator", label: "Operator (Operators)" },
+            { id: "variabel", label: "Variabel (Variables)" },
+            { id: "blok-sendiri", label: "Blok Buatan Sendiri (My Blocks)" },
+          ],
+        },
+        {
+          judul: "Algoritma utama",
+          pilihan: [
+            { id: "scan-repeat", label: "Scan menggunakan repeat" },
+            {
+              id: "deteksi-tabrakan",
+              label: "Deteksi tabrakan garis dengan dino",
+            },
+            {
+              id: "tinggi",
+              label: "Menghitung tinggi +1 dalam repeat",
+            },
+            { id: "cari-biner", label: "Pencarian biner (binary search)" },
+            { id: "urutkan", label: "Pengurutan nilai (sorting)" },
+            {
+              id: "rata-rata",
+              label: "Menghitung rata-rata beberapa pengukuran",
+            },
+          ],
+        },
+      ],
+      wajib: [
+        "gerak",
+        "sensor",
+        "kontrol",
+        "variabel",
+        "operator",
+        "scan-repeat",
+        "deteksi-tabrakan",
+        "tinggi",
+      ],
+      terlarang: ["suara", "blok-sendiri", "cari-biner", "urutkan", "rata-rata"],
+    },
+    cast: [
+      { name: "Line (pemindai)", image: "sprites/line.svg" },
+      { name: "Dino 1", image: "sprites/dino-1.svg" },
+      { name: "Dino 2", image: "sprites/dino-2.svg" },
+      { name: "Dino 3", image: "sprites/dino-3.svg" },
+      { name: "Dino 4", image: "sprites/dino-4.svg" },
+    ],
+    goals: [
+      "Mengirim pesan antar sprite dengan broadcast and wait",
+      "Menghitung tinggi memakai repeat dan blok touching",
+      "Mengganti kostum secara acak dengan pick random",
+    ],
+    sections: [
+      {
+        title: "Menyiapkan Variabel dan Tombol Mulai",
+        goal: "Menyiapkan tinggi hitungan, posisi awal garis, dan pemicu tombol spasi.",
+        guide: [
+          {
+            block: "when [space v] key pressed",
+            warna: "#FFBF00",
+            fungsi: "Menjalankan pengukuran saat pemain menekan tombol spasi.",
+            alasan: "Tombol spasi dipakai sebagai tombol ukur, jadi pemain bisa menekan berkali-kali untuk mengukur ulang.",
+          },
+          {
+            block: "broadcast [start scan v] and wait",
+            warna: "#FFBF00",
+            fungsi: "Memberi tahu sprite Item agar bersiap, lalu menunggu sampai ia selesai bersiap.",
+            alasan: "Kata and wait wajib ada — tanpa itu garis sudah bergerak naik sebelum dinosaur sempat muncul di tengah layar.",
+          },
+          {
+            block: "go to x: (0) y: (-180)",
+            warna: "#4C97FF",
+            fungsi: "Menempatkan garis di dasar panggung sebagai titik awal pengukuran.",
+            alasan: "Pengukuran harus selalu mulai dari titik yang sama di bawah, supaya hasil tiap kali bisa dibandingkan.",
+          },
+          {
+            block: "set [height v] to (0)",
+            warna: "#FF8C1A",
+            fungsi: "Mengosongkan angka tinggi sebelum mulai menghitung.",
+            alasan: "Tanpa direset, hasil ukuran baru akan menempel pada hasil ukuran sebelumnya.",
+          },
+        ],
+        codeTitle: "Susun blok seperti ini (di sprite Line):",
+        code: `when [space v] key pressed
+broadcast [start scan v] and wait
+go to x: (0) y: (-180)
+set [height v] to [0]`,
+        tip: "Buat variabel height dengan pilihan for all sprites, karena sprite Item juga membaca angka ini.",
+      },
+      {
+        title: "Garis Pemindai Bergerak ke Atas",
+        goal: "Menaikkan garis satu langkah demi satu langkah sampai menyentuh bagian atas panggung.",
+        guide: [
+          {
+            block: "repeat (360)",
+            warna: "#FFAB19",
+            fungsi: "Mengulang pengukuran sebanyak 360 langkah.",
+            alasan: "Panggung tingginya 360 satuan, dari y -180 sampai y 180, jadi satu pengulangan mewakili satu satuan tinggi.",
+          },
+          {
+            block: "set [color v] effect to (0)",
+            warna: "#9966FF",
+            fungsi: "Mengembalikan warna garis ke normal di setiap langkah.",
+            alasan: "Warna garis dipakai sebagai penanda sentuhan, jadi harus dibersihkan dulu sebelum langkah berikutnya.",
+          },
+          {
+            block: "change y by (1)",
+            warna: "#4C97FF",
+            fungsi: "Menaikkan garis satu langkah ke atas.",
+            alasan: "Naik satu-satu membuat garis memeriksa seluruh badan dinosaur dari bawah ke atas, bukan melompat.",
+          },
+        ],
+        codeTitle: "Sambung di bawah set height:",
+        code: `repeat (360)
+set [color v] effect to (0)
+change y by (1)
+end`,
+        tip: "Satu langkah bernilai satu satuan. Karena itu 360 langkah sudah cukup untuk menyisir seluruh tinggi panggung.",
+      },
+      {
+        title: "Menghitung Tinggi Dino",
+        goal: "Menambah hitungan setiap kali garis berada di dalam badan dinosaur.",
+        guide: [
+          {
+            block: "if <touching [Item v]?> then",
+            warna: "#FFAB19",
+            fungsi: "Menguji apakah garis sedang menempel pada badan dinosaur.",
+            alasan: "Sentuhan inilah yang menandai bahwa langkah itu masih bagian dari tinggi dinosaur.",
+          },
+          {
+            block: "set [color v] effect to (100)",
+            warna: "#9966FF",
+            fungsi: "Mengubah warna garis sebagai tanda bahwa ia sedang menyentuh dinosaur.",
+            alasan: "Pemain bisa melihat sendiri bagian mana dari dinosaur yang sedang diukur, jadi hasilnya tidak terasa seperti sulap.",
+          },
+          {
+            block: "change [height v] by (1)",
+            warna: "#FF8C1A",
+            fungsi: "Menambah satu angka tinggi untuk setiap langkah yang menyentuh dinosaur.",
+            alasan: "Setiap langkah yang menyentuh berarti satu satuan tinggi badan, jadi jumlahnya sama dengan tinggi dinosaur.",
+          },
+        ],
+        codeTitle: "Tempel di dalam repeat:",
+        code: `repeat (360)
+set [color v] effect to (0)
+change y by (1)
+if <touching [Item v]?> then
+set [color v] effect to (100)
+change [height v] by (1)
+end
+end`,
+        tip: "Blok if harus berada di dalam repeat, kalau tidak garis hanya diperiksa sekali di dasar panggung.",
+      },
+      {
+        title: "Koreksi Angka dan Laporan Selesai",
+        goal: "Membetulkan hasil hitungan karena ketebalan garis, lalu meminta dinosaur mengumumkan tinggi.",
+        guide: [
+          {
+            block: "change [height v] by (-15)",
+            warna: "#FF8C1A",
+            fungsi: "Mengurangi hasil hitungan sebanyak 15.",
+            alasan: "Garis punya ketebalan sendiri, sehingga ia terhitung menyentuh sedikit lebih lama daripada badan aslinya — 15 langkah itu kelebihannya.",
+          },
+          {
+            block: "broadcast [scan done v] and wait",
+            warna: "#FFBF00",
+            fungsi: "Memberi tahu dinosaur bahwa pengukuran sudah selesai dan hasilnya siap dibacakan.",
+            alasan: "Tanpa pesan ini dinosaur tidak akan pernah tahu kapan angka tingginya sudah final.",
+          },
+        ],
+        codeTitle: "Skrip lengkap sprite Line:",
+        code: `when [space v] key pressed
+broadcast [start scan v] and wait
+go to x: (0) y: (-180)
+set [height v] to [0]
+repeat (360)
+set [color v] effect to (0)
+change y by (1)
+if <touching [Item v]?> then
+set [color v] effect to (100)
+change [height v] by (1)
+end
+end
+change [height v] by (-15)
+broadcast [scan done v] and wait`,
+        tip: "Coba ukur berkali-kali: dinosaur berganti bentuk, jadi angka tingginya ikut berubah.",
+      },
+      {
+        title: "Sprite Item: Ganti Kostum dan Laporkan",
+        goal: "Membuat dinosaur berganti bentuk secara acak lalu membacakan tinggi badannya.",
+        guide: [
+          {
+            block: "when I receive [start scan v]",
+            warna: "#FFBF00",
+            fungsi: "Membuat dinosaur bersiap tepat sebelum garis mulai naik.",
+            alasan: "Dinosaur harus berganti bentuk lebih dulu agar garis mengukur bentuk yang benar-benar tampil.",
+          },
+          {
+            block: "switch costume to (pick random (1) to (4))",
+            warna: "#9966FF",
+            fungsi: "Memilih satu dari empat kostum dinosaur secara acak.",
+            alasan: "Keacakan membuat pengukuran terasa seperti benar-benar mengukur, bukan menampilkan satu bentuk yang sama terus.",
+          },
+          {
+            block: "go to x: (0) y: (0)",
+            warna: "#4C97FF",
+            fungsi: "Memindahkan dinosaur ke tengah panggung.",
+            alasan: "Posisi di tengah membuat seluruh badannya berada di jalur garis pemindai yang naik dari bawah.",
+          },
+          {
+            block: "when I receive [scan done v]",
+            warna: "#FFBF00",
+            fungsi: "Membuat dinosaur melaporkan hasil setelah pengukuran selesai.",
+            alasan: "Hasil baru boleh diumumkan setelah garis selesai naik dan angka height sudah dikoreksi.",
+          },
+          {
+            block: "say (join [Tinggi dinosaurnya adalah ] (height)) for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Menampilkan kalimat hasil ukur bersama angka tingginya.",
+            alasan: "Angka saja tidak cukup jelas, jadi digabung dengan kalimat memakai blok join agar mudah dibaca.",
+          },
+        ],
+        codeTitle: "Buat dua skrip di sprite Item:",
+        code: `when I receive [start scan v]
+switch costume to (pick random (1) to (4))
+go to x: (0) y: (0)
+
+when I receive [scan done v]
+say (join [Tinggi dinosaurnya adalah ] (height)) for (2) seconds`,
+        tip: "Kalau hasilnya terasa kurang tepat, ubah angka koreksi -15 sedikit demi sedikit sampai angkanya masuk akal.",
       },
     ],
   },
