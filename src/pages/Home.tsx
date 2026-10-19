@@ -1,5 +1,6 @@
 import { For, type Component } from "solid-js";
 import { tutorials } from "../data/tutorials";
+import { trickCards } from "../data/tricks";
 
 const Home: Component = () => (
   <div class="mx-auto max-w-5xl px-4 py-8">
@@ -18,6 +19,25 @@ const Home: Component = () => (
         {tutorials.length} tutorial
       </p>
     </section>
+
+    <a
+      href="#/trick-cards"
+      class="mt-6 block border-2 border-black bg-white p-5 transition-transform hover:-translate-y-0.5"
+    >
+      <p class="text-xs font-bold uppercase tracking-widest">
+        Referensi cepat
+      </p>
+      <h2 class="mt-1 text-xl font-extrabold leading-snug">
+        Kartu Trik Scratch
+      </h2>
+      <p class="mt-1 text-sm leading-relaxed">
+        {trickCards.length} potongan blok siap pakai — gravitasi, clone, skor,
+        tombol, dan lain-lain. Bisa dicari dengan kata kunci.
+      </p>
+      <span class="mt-3 inline-block border-b-2 border-black text-sm font-bold">
+        Cari kartu trik →
+      </span>
+    </a>
 
     <ol class="mt-6 grid gap-4 md:grid-cols-2">
       <For each={tutorials}>

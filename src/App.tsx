@@ -6,13 +6,18 @@ import {
 } from "solid-js";
 import Home from "./pages/Home";
 import Tutorial from "./pages/Tutorial";
+import TrickCards from "./pages/TrickCards";
 
-type Route = { name: "home" } | { name: "tutorial"; id: string };
+type Route =
+  | { name: "home" }
+  | { name: "tutorial"; id: string }
+  | { name: "tricks" };
 
 function parseHash(): Route {
   const hash = window.location.hash.replace(/^#/, "");
   const match = hash.match(/^\/?tutorial\/([^/?#]+)/);
   if (match) return { name: "tutorial", id: decodeURIComponent(match[1]) };
+  if (/^\/?trick-cards/.test(hash)) return { name: "tricks" };
   return { name: "home" };
 }
 
@@ -26,6 +31,9 @@ const Layout: ParentComponent = (props) => (
         <nav class="flex items-center gap-4 text-sm font-semibold">
           <a href="#/" class="underline underline-offset-4">
             Beranda
+          </a>
+          <a href="#/trick-cards" class="underline underline-offset-4">
+            Kartu Trik
           </a>
         </nav>
       </div>
@@ -52,6 +60,8 @@ const App: Component = () => {
     <Layout>
       {route().name === "tutorial" ? (
         <Tutorial id={(route() as { id: string }).id} />
+      ) : route().name === "tricks" ? (
+        <TrickCards />
       ) : (
         <Home />
       )}
