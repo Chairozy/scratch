@@ -1,3 +1,6 @@
+import type { ProjectFlow } from "./flow";
+import { catchAppleFlow } from "./catchApple";
+
 export interface BlockGuide {
   block: string;
   warna: string;
@@ -15,9 +18,10 @@ export interface TutorialSection {
   /** Penjelasan blok + alasan + kebutuhan. Tampil menggantikan langkah bila ada. */
   guide?: BlockGuide[];
   map?: boolean;
-  codeTitle: string;
+  demo?: "move-arrow";
+  codeTitle?: string;
   /** Kode sintaks scratchblocks (blok berbahasa Inggris). */
-  code: string;
+  code?: string;
   /** Tips singkat. */
   tip: string;
 }
@@ -61,6 +65,9 @@ export interface Tutorial {
   embedUrl?: string;
   intro?: string;
   quiz?: TutorialQuiz;
+  teaserCode?: string;
+  castTitle?: string;
+  flow?: ProjectFlow;
 }
 
 export const tutorials: Tutorial[] = [
@@ -851,7 +858,7 @@ end`,
     title: "Scan Tinggi Dino",
     desc: "Proyek pengukur tinggi badan: garis pemindai naik dari dasar panggung sambil menghitung berapa langkah ia menyentuh dinosaur, lalu mengumumkan hasilnya.",
     level: "Menengah",
-    minutes: 40,
+    minutes: 80,
     embedUrl: "https://scratch.mit.edu/projects/1393095756/embed",
     intro:
       "Di Scratch kita bisa menentukan posisi x dan y, ukuran, direction, dan lain-lain dengan angka. Tapi kita tidak memiliki pengukuran tinggi dari sebuah sprite. Karena itu kita membuat project Scan Tinggi Dino, untuk mencari tahu cara mendapatkan nilai tinggi sebuah sprite.",
@@ -910,15 +917,19 @@ end`,
     },
     cast: [
       { name: "Line (pemindai)", image: "sprites/line.svg" },
-      { name: "Dino 1", image: "sprites/dino-1.svg" },
-      { name: "Dino 2", image: "sprites/dino-2.svg" },
-      { name: "Dino 3", image: "sprites/dino-3.svg" },
-      { name: "Dino 4", image: "sprites/dino-4.svg" },
+      { name: "Kelinci (sprite kedua)", image: "sprites/kelinci.svg" },
+      { name: "Dinosaur1-a", image: "sprites/dinosaur1-a.svg" },
+      { name: "Dinosaur2-a", image: "sprites/dinosaur2-a.svg" },
+      { name: "Dinosaur3-a", image: "sprites/dinosaur3-a.svg" },
+      { name: "Dinosaur4-a", image: "sprites/dinosaur4-a.svg" },
     ],
     goals: [
       "Mengirim pesan antar sprite dengan broadcast and wait",
       "Menghitung tinggi memakai repeat dan blok touching",
       "Mengganti kostum secara acak dengan pick random",
+      "Menambahkan sprite kedua dan mengukur dua sprite dalam satu kali penyapuan",
+      "Memainkan suara berbeda saat garis menyentuh dan tidak menyentuh sprite",
+      "Membuat garis pemindai baru yang bergerak mendatar untuk mengukur lebar sprite",
     ],
     sections: [
       {
@@ -1068,7 +1079,8 @@ broadcast [scan done v] and wait`,
           {
             block: "switch costume to (pick random (1) to (4))",
             warna: "#9966FF",
-            fungsi: "Memilih satu dari empat kostum dinosaur secara acak.",
+            fungsi:
+              "Memilih satu dari empat kostum dinosaur secara acak: Dinosaur1-a, Dinosaur2-a, Dinosaur3-a, atau Dinosaur4-a.",
             alasan: "Keacakan membuat pengukuran terasa seperti benar-benar mengukur, bukan menampilkan satu bentuk yang sama terus.",
           },
           {
@@ -1099,7 +1111,332 @@ when I receive [scan done v]
 say (join [Tinggi dinosaurnya adalah ] (height)) for (2) seconds`,
         tip: "Kalau hasilnya terasa kurang tepat, ubah angka koreksi -15 sedikit demi sedikit sampai angkanya masuk akal.",
       },
+      {
+        title: "Tantangan 1: Scan Dua Sprite Sekaligus",
+        goal: "Menambahkan sprite baru lalu mengukur tinggi kedua sprite dalam satu kali penyapuan garis.",
+        guide: [
+          {
+            block: "set [height2 v] to (0)",
+            warna: "#FF8C1A",
+            fungsi: "Menyiapkan variabel kedua untuk sprite baru, lalu mengosongkannya sebelum mengukur.",
+            alasan: "Kalau keduanya menumpang satu variabel, angka tinggi dinosaur dan kelinci akan tercampur.",
+          },
+          {
+            block: "if <touching [Kelinci v]?> then",
+            warna: "#5CB1D6",
+            fungsi: "Memeriksa sentuhan dengan sprite kedua di langkah yang sama.",
+            alasan: "Garis bisa menyentuh dua sprite sekaligus, jadi setiap sprite butuh pemeriksaan sendiri.",
+          },
+          {
+            block: "change [height2 v] by (1)",
+            warna: "#FF8C1A",
+            fungsi: "Menghitung tinggi kelinci, satu langkah setiap kali garis menyentuhnya.",
+            alasan: "Cara kerjanya sama seperti tinggi dinosaur — yang dihitung hanya langkah saat garis menempel di badannya.",
+          },
+          {
+            block: "when I receive [start scan v]",
+            warna: "#FFBF00",
+            fungsi: "Di sprite Kelinci: bersiap tepat sebelum garis mulai naik.",
+            alasan: "Sprite kedua harus berada di tempatnya lebih dulu, supaya tinggi yang terukur adalah tinggi badannya yang asli.",
+          },
+          {
+            block: "say (join [Tinggi kelincinya adalah ] (height2)) for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Di sprite Kelinci: melaporkan hasil ukurnya sendiri setelah pengukuran selesai.",
+            alasan: "Tiap sprite membaca variabelnya sendiri, jadi dua sprite bisa melaporkan dua angka berbeda.",
+          },
+        ],
+        tip: "Sprite kedua tidak harus Kelinci — pakai sprite apa saja dari galeri, lalu sesuaikan nama di blok touching dan namanya di pesan pelaporannya.",
+      },
+      {
+        title: "Tantangan 2: Suara Pemindai",
+        goal: "Menambah suara: nada berbeda saat garis menyentuh dino dan saat garis belum menyentuh apa pun.",
+        guide: [
+          {
+            block: "start sound [Buzz Whir v]",
+            warna: "#CF63CF",
+            fungsi: "Membunyikan suara pemindai selama garis belum menyentuh sprite.",
+            alasan: "Blok start sound tidak menunggu suara selesai, jadi pengukuran tetap berjalan tanpa jeda.",
+          },
+          {
+            block: "start sound [Coin v]",
+            warna: "#CF63CF",
+            fungsi: "Membunyikan suara berbeda begitu garis menyentuh badan dinosaur.",
+            alasan: "Perbedaan nada membuat pemain bisa mendengar kapan garis sudah menemukan bagian sprite tanpa melihat layar.",
+          },
+          {
+            block: "if <> then else end",
+            warna: "#FFAB19",
+            fungsi: "Memilih suara mana yang dimainkan berdasarkan hasil pemeriksaan sentuhan.",
+            alasan: "Satu pemeriksaan sentuhan dipakai dua arah: menyentuh atau tidak menyentuh.",
+          },
+        ],
+        tip: "Repeat berjalan 360 kali, jadi suaranya bertumpuk cepat. Pilih suara pendek seperti Pop atau Squish Pop. Kalau masih terlalu berisik, catat keadaan sebelumnya di sebuah variabel dan mainkan suara hanya saat keadaannya berubah.",
+      },
+      {
+        title: "Tantangan 3: Garis Baru untuk Scan Lebar",
+        goal: "Menduplikasi garis, memutarnya jadi tegak, lalu menyapu dari kiri ke kanan untuk mengukur lebar sprite.",
+        guide: [
+          {
+            block: "point in direction (90)",
+            warna: "#4C97FF",
+            fungsi: "Memutar kostum garis yang mendatar menjadi tegak.",
+            alasan: "Garis tegak menyapu ke samping, jadi yang terhitung adalah lebar badan sprite, bukan tingginya.",
+          },
+          {
+            block: "go to x: (-240) y: (0)",
+            warna: "#4C97FF",
+            fungsi: "Menempatkan garis tegak di tepi kiri panggung sebagai titik awal menyapu.",
+            alasan: "Panggung lebarnya 480 satuan, dari x -240 sampai x 240.",
+          },
+          {
+            block: "repeat (480)",
+            warna: "#FFAB19",
+            fungsi: "Menggeser garis sebanyak 480 kali, satu langkah untuk satu satuan lebar.",
+            alasan: "Jumlah pengulangan harus mengikuti lebar panggung supaya seluruh badan sprite tersapu.",
+          },
+          {
+            block: "change x by (1)",
+            warna: "#4C97FF",
+            fungsi: "Menggeser garis tegak satu langkah ke kanan.",
+            alasan: "Gerak mendatar inilah yang membuat pengukuran lebar berbeda dari pengukuran tinggi.",
+          },
+          {
+            block: "change [width v] by (1)",
+            warna: "#FF8C1A",
+            fungsi: "Menghitung lebar selama garis tegak menempel di badan sprite.",
+            alasan: "Sama seperti tinggi, lebar didapat dari berapa langkah garis menempel di sprite.",
+          },
+          {
+            block: "say (join [Lebar dinosaurnya adalah ] (width)) for (2) seconds",
+            warna: "#9966FF",
+            fungsi: "Melaporkan hasil ukur lebar setelah penyapuan selesai.",
+            alasan: "Angka lebar harus diumumkan setelah koreksi ketebalan garis dikurangi.",
+          },
+        ],
+        tip: "Pakai tombol selain spasi supaya tidak bentrok dengan pemindai tinggi. Angka koreksi -15 boleh mulai dari nilai yang sama, lalu bandingkan hasilnya dengan ukuran asli sprite di panel Sprite dan sesuaikan sampai pas.",
+      },
     ],
+  },
+  {
+    id: "animate-a-name",
+    title: "Animasikan Nama",
+    desc: "Proyek animasi nama: setiap huruf menjadi sprite sendiri yang menyala, membesar, dan melompat saat diklik.",
+    level: "Pemula",
+    minutes: 45,
+    castTitle: "Kenalan dengan para huruf",
+    teaserCode: `? ? ? ? ? ? ? ? ? ? ? ? ? ? :: events hat grey
+? ? ? ? ? ? ? ? (? ? :: operators grey) ? ? ? ? ? :: grey`,
+    intro:
+      "Nama adalah hal pertama yang dilihat orang saat membuka sebuah karya. Di Scratch, setiap huruf bisa menjadi sprite sendiri, sehingga huruf itu bebas berkedip, membesar, atau melompat. Karena itu kita membuat proyek Animasikan Nama: satu huruf, satu sprite, satu skrip kecil yang membuat nama terasa hidup.",
+    cast: [
+      { name: "Huruf N", image: "sprites/huruf-n.svg" },
+      { name: "Huruf A", image: "sprites/huruf-a.svg" },
+      { name: "Huruf M", image: "sprites/huruf-m.svg" },
+      { name: "Huruf A (kedua)", image: "sprites/huruf-a.svg" },
+    ],
+    backdrop: { name: "Papan Tulis (Chalkboard)", image: "backdrops/chalkboard.png" },
+    goals: [
+      "Menambahkan satu sprite huruf untuk tiap huruf pada nama",
+      "Membuat huruf bereaksi saat diklik dengan when this sprite clicked",
+      "Mengubah warna dan ukuran huruf memakai blok effect",
+      "Mengulang animasi dengan forever dan wait",
+      "Memindahkan huruf dengan glide ke posisi acak",
+    ],
+    sections: [
+      {
+        title: "Memilih Nama dan Menambah Huruf",
+        goal: "Menyiapkan satu sprite huruf untuk setiap huruf pada nama yang akan dianimasikan.",
+        steps: [
+          "Tentukan nama yang ingin dianimasikan. Contoh di tutorial ini adalah NAMA.",
+          "Klik Choose a Sprite, buka kategori Letters, lalu pilih huruf N. Ulangi untuk huruf A, M, dan A.",
+          "Ganti nama tiap sprite di panel Sprite menjadi Huruf N, Huruf A, Huruf M, dan Huruf A2 supaya mudah dibedakan.",
+          "Susun huruf berjajar di tengah panggung memakai blok go to x: (...) y: (0).",
+          "Klik bendera hijau untuk memastikan semua huruf tampil di posisi yang benar.",
+        ],
+        tip: "Kalau nama punya huruf yang sama, tambahkan sprite huruf itu dua kali. Dua sprite dengan kostum sama tetap punya skrip masing-masing.",
+      },
+      {
+        title: "Huruf Menyala Saat Diklik",
+        goal: "Membuat setiap huruf berubah warna dan berbunyi ketika pemain mengkliknya.",
+        guide: [
+          {
+            block: "when this sprite clicked",
+            warna: "#FFBF00",
+            fungsi: "Menjalankan skrip saat huruf itu sendiri diklik.",
+            alasan: "Setiap huruf punya skrip sendiri, jadi pemicunya harus menempel di sprite huruf — bukan di panggung — supaya hanya huruf yang diklik yang bereaksi.",
+          },
+          {
+            block: "change [color v] effect by (25)",
+            warna: "#9966FF",
+            fungsi: "Menggeser warna huruf sebanyak 25 sehingga terlihat berubah.",
+            alasan: "Perubahan kecil tapi pasti ini membuat huruf terasa disentuh; angka 25 cukup terlihat tanpa membuat warnanya melompat jauh.",
+          },
+          {
+            block: "start sound [Pop v]",
+            warna: "#CF63CF",
+            fungsi: "Memutar bunyi pop saat huruf diklik.",
+            alasan: "Blok start sound tidak menunggu bunyi selesai, jadi perubahan warna dan bunyi terjadi bersamaan.",
+          },
+        ],
+        codeTitle: "Skrip untuk tiap huruf:",
+        code: `when this sprite clicked
+change [color v] effect by (25)
+start sound [Pop v]`,
+        tip: "Tempel skrip yang sama di semua huruf. Klik berulang akan terus menggeser warna, lalu kembali ke warna awal setelah satu putaran penuh.",
+      },
+      {
+        title: "Huruf Membesar Lalu Menyusut",
+        goal: "Menambahkan animasi ukuran supaya huruf terasa hidup saat disentuh.",
+        guide: [
+          {
+            block: "set size to (140)%",
+            warna: "#9966FF",
+            fungsi: "Memperbesar huruf menjadi 140% dari ukuran aslinya.",
+            alasan: "Membesar sesaat memberi kesan huruf melompat ke arah pemain, bukan sekadar berganti warna.",
+          },
+          {
+            block: "wait (0.15) seconds",
+            warna: "#FFAB19",
+            fungsi: "Menahan ukuran besar sebentar sebelum dikembalikan.",
+            alasan: "Tanpa jeda, huruf langsung mengecil dalam satu frame dan mata tidak sempat melihat perubahannya.",
+          },
+          {
+            block: "set size to (100)%",
+            warna: "#9966FF",
+            fungsi: "Mengembalikan huruf ke ukuran semula.",
+            alasan: "Ukuran harus selalu dikembalikan, kalau tidak huruf akan makin besar setiap kali diklik.",
+          },
+        ],
+        codeTitle: "Tambahkan setelah blok warna:",
+        code: `when this sprite clicked
+set size to (140)%
+wait (0.15) seconds
+set size to (100)%`,
+        tip: "Angka 140 dan 0,15 bisa dicoba-coba. Huruf yang lebih besar mungkin cukup 125%, huruf kecil bisa sampai 160%.",
+      },
+      {
+        title: "Warna Berputar Tanpa Henti",
+        goal: "Membuat warna huruf berputar terus selama proyek berjalan.",
+        guide: [
+          {
+            block: "when flag clicked",
+            warna: "#FFBF00",
+            fungsi: "Menjalankan animasi warna begitu proyek dimulai.",
+            alasan: "Animasi latar seperti ini sebaiknya berjalan sendiri, tanpa perlu diklik satu per satu.",
+          },
+          {
+            block: "forever",
+            warna: "#FFAB19",
+            fungsi: "Mengulang blok di dalamnya selama proyek masih berjalan.",
+            alasan: "Warna harus terus berputar; repeat biasa akan berhenti setelah jumlah tertentu.",
+          },
+          {
+            block: "change [color v] effect by (5)",
+            warna: "#9966FF",
+            fungsi: "Menggeser warna sedikit di setiap putaran.",
+            alasan: "Langkah kecil 5 membuat perpindahan warna terlihat halus, bukan berkedip.",
+          },
+          {
+            block: "wait (0.1) seconds",
+            warna: "#FFAB19",
+            fungsi: "Memberi jeda di antara perubahan warna.",
+            alasan: "Tanpa wait, forever berjalan sangat cepat sehingga warna berubah ribuan kali per detik dan terlihat acak.",
+          },
+        ],
+        codeTitle: "Animasi latar di tiap huruf:",
+        code: `when flag clicked
+forever
+change [color v] effect by (5)
+wait (0.1) seconds
+end`,
+        tip: "Kalau semua huruf memakai jeda yang sama, warnanya bergerak serempak. Ubah angka wait sedikit di tiap huruf supaya terlihat lebih hidup.",
+      },
+      {
+        title: "Huruf Melompat ke Posisi Acak",
+        goal: "Memindahkan huruf ke tempat baru dengan glide dan posisi acak.",
+        guide: [
+          {
+            block: "start sound [Coin v]",
+            warna: "#CF63CF",
+            fungsi: "Memutar bunyi koin sebagai tanda huruf mulai berpindah.",
+            alasan: "Bunyi membantu pemain menyadari bahwa yang berubah bukan hanya posisi, tapi juga arah gerak huruf.",
+          },
+          {
+            block: "glide (0.6) secs to x: (pick random (-180) to (180)) y: (pick random (-80) to (80))",
+            warna: "#4C97FF",
+            fungsi: "Menggeser huruf ke titik acak di dalam panggung dengan gerakan halus.",
+            alasan: "Glide membuat perpindahan terlihat sebagai gerakan, sedangkan pick random membuat tujuan selalu berbeda setiap klik.",
+          },
+        ],
+        codeTitle: "Ganti skrip klik dengan yang ini:",
+        code: `when this sprite clicked
+start sound [Coin v]
+glide (0.6) secs to x: (pick random (-180) to (180)) y: (pick random (-80) to (80))`,
+        tip: "Batasi x sampai 180 dan y sampai 80 supaya huruf tidak keluar panggung. Huruf yang lebih besar butuh rentang yang lebih kecil.",
+      },
+      {
+        title: "Ke Mana Huruf Bergerak?",
+        goal: "Melihat bahwa move 10 steps menggeser sprite 10 satuan ke arah hadapnya, dan turn cw 15 degrees memutar arah hadap itu.",
+        demo: "move-arrow",
+        tip: "Gerak selalu mengikuti panah. Putar dulu arahnya dengan turn, lalu move akan melaju ke arah yang baru.",
+      },
+      {
+        title: "Tantangan: Semua Huruf Bergoyang Bersamaan",
+        goal: "Memicu seluruh nama dari satu huruf, lalu memberi jeda acak supaya gerakannya tidak seragam.",
+        guide: [
+          {
+            block: "broadcast [go v] and wait",
+            warna: "#FFBF00",
+            fungsi: "Mengirim pesan go ke semua huruf, lalu menunggu sampai semuanya selesai bereaksi.",
+            alasan: "Satu pemicu di satu huruf membuat seluruh nama bergerak pada saat yang sama, tanpa perlu mengklik tiap huruf.",
+          },
+          {
+            block: "when I receive [go v]",
+            warna: "#FFBF00",
+            fungsi: "Membuat tiap huruf mulai bereaksi saat pesan go diterima.",
+            alasan: "Pesan yang sama bisa didengar banyak sprite sekaligus; itulah cara Scratch menyinkronkan seluruh nama.",
+          },
+          {
+            block: "wait (pick random (1) to (3)) seconds",
+            warna: "#FFAB19",
+            fungsi: "Memberi jeda acak sebelum huruf bergerak.",
+            alasan: "Tanpa jeda acak, semua huruf bergerak serempak dan terlihat seperti satu blok besar, bukan nama yang bergoyang.",
+          },
+          {
+            block: "change [color v] effect by (25)",
+            warna: "#9966FF",
+            fungsi: "Mengubah warna huruf sebagai reaksi terhadap pesan go.",
+            alasan: "Reaksi yang sama di tiap huruf membuat nama tetap terbaca sebagai satu kesatuan meskipun geraknya berbeda-beda.",
+          },
+        ],
+        tip: "Tambahkan turn cw (15) degrees lalu turn ccw (15) degrees di sekitar perubahan warna supaya huruf bergoyang tanpa miring permanen. Kirim pesan go dari tombol atau dari huruf pertama saat diklik.",
+      },
+    ],
+  },
+  {
+    id: "catch-apple",
+    title: "Catch Apple",
+    desc: "Tangkap apel yang jatuh dengan keranjang: gerakkan keranjang dengan panah, kumpulkan skor, dan jaga nyawa tetap tersisa.",
+    level: "Pemula",
+    minutes: 60,
+    goals: [
+      "Menyiapkan sprite, latar, suara, dan kotak angka sebelum menulis kode.",
+      "Membuat apel jatuh terus di tempat yang berubah-ubah.",
+      "Menggerakkan keranjang dengan panah dan berhenti di pinggir panggung.",
+      "Memakai kotak angka skor dan nyawa sebagai aturan permainan.",
+      "Menghentikan permainan dengan pesan dan stop all.",
+    ],
+    sections: [],
+    castTitle: "Sprite dan latar permainan",
+    cast: [
+      { name: "Apple", image: "sprites/apple.svg" },
+      { name: "Bowl", image: "sprites/bowl.svg" },
+      { name: "Game Over", image: "sprites/game-over.svg" },
+    ],
+    backdrop: { name: "Blue Sky", image: "backdrops/blue-sky.svg" },
+    embedUrl: "https://scratch.mit.edu/projects/1317982616/embed",
+    flow: catchAppleFlow,
   },
 ];
 
