@@ -26,9 +26,112 @@ body {
   display: block;
 }
 
+.move-demo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.move-item {
+  min-width: 0;
+}
+
+.move-item > .move-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 13.75rem;
+  border: 2px solid #000;
+  background: #fff;
+}
+
+.move-stage > .move-cat {
+  width: 9rem;
+  height: auto;
+}
+
+.move-stage > .move-arrow-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.move-stage > .move-turn-layer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: visible;
+  pointer-events: none;
+}
+
+.move-arrow-layer > .move-arrow-line {
+  stroke: #000;
+}
+
+.move-arrow-layer > .move-arrow-head {
+  fill: #000;
+}
+
+.move-turn-layer > .move-turn-arc {
+  stroke: #000;
+}
+
+.move-turn-layer > g > .move-turn-head {
+  fill: #000;
+}
+
+.move-item:has(> .move-block:hover) > .move-stage > .move-arrow-layer > .move-arrow-line {
+  stroke: #4c97ff;
+}
+
+.move-item:has(> .move-block:hover) > .move-stage > .move-arrow-layer > .move-arrow-head {
+  fill: #4c97ff;
+}
+
+.move-item:has(> .move-block:hover) > .move-stage > .move-turn-layer > .move-turn-arc {
+  stroke: #4c97ff;
+}
+
+.move-item:has(> .move-block:hover) > .move-stage > .move-turn-layer > g > .move-turn-head {
+  fill: #4c97ff;
+}
+
+.move-item > .move-caption {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.move-item > .move-block {
+  width: max-content;
+  margin-top: 0.5rem;
+}
+
+.move-demo > .move-hint {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 40rem) {
+  .move-demo {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Halaman print: 1 section = 1 lembar ===== */
 .print-page {
   break-inside: avoid;
+}
+
+.print-only {
+  display: none;
 }
 
 @page {
@@ -44,6 +147,10 @@ body {
   /* Sembunyikan navigasi & tombol saat print */
   .print-hidden {
     display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
   }
 
   /* Tiap section jadi 1 halaman A4 */

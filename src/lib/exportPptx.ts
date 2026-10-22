@@ -123,27 +123,29 @@ export async function exportTutorialPptx(t: Tutorial): Promise<void> {
       y += 2.3;
     }
 
-    slide.addText(s.codeTitle, {
-      x: 0.5,
-      y,
-      w: 9,
-      h: 0.35,
-      fontSize: 12,
-      bold: true,
-      color: "000000",
-    });
-    y += 0.4;
-    slide.addText(s.code, {
-      x: 0.5,
-      y,
-      w: 9,
-      h: 1.6,
-      fontSize: 11,
-      fontFace: "Consolas",
-      color: "000000",
-      fill: { color: "F2F2F2" },
-    });
-    y += 1.7;
+    if (s.code) {
+      slide.addText(s.codeTitle ?? "", {
+        x: 0.5,
+        y,
+        w: 9,
+        h: 0.35,
+        fontSize: 12,
+        bold: true,
+        color: "000000",
+      });
+      y += 0.4;
+      slide.addText(s.code, {
+        x: 0.5,
+        y,
+        w: 9,
+        h: 1.6,
+        fontSize: 11,
+        fontFace: "Consolas",
+        color: "000000",
+        fill: { color: "F2F2F2" },
+      });
+      y += 1.7;
+    }
     slide.addText(`Tips: ${s.tip}`, {
       x: 0.5,
       y,

@@ -6,6 +6,7 @@ interface ScratchBlocksProps {
   code: string;
   /** Skala render blok. Default 0.85 agar muat di lebar A4. */
   scale?: number;
+  plain?: boolean;
 }
 
 /**
@@ -37,13 +38,34 @@ const ScratchBlocks: Component<ScratchBlocksProps> = (props) => {
 
   createEffect(() => {
     draw(props.code, props.scale ?? 0.85);
+    host.querySelectorAll('.sb3-diff-ins').forEach((el) => {
+      el.setAttribute('stroke', '#4b5563');
+      el.setAttribute('stroke-width', '1.25');
+    });
+    host.querySelectorAll('text').forEach((el) => {
+      const t = el.textContent || '';
+      if (t === '+') {
+        el.remove();
+      } else if (t.startsWith('+')) {
+        el.textContent = t.slice(1);
+      }
+    });
   });
 
   onCleanup(() => {
     host.innerHTML = "";
   });
 
-  return <div class="sb-wrap rounded border border-black p-3" ref={host} />;
+  return (
+    <div
+      class={
+        props.plain
+          ? "sb-wrap max-w-full overflow-x-auto"
+          : "sb-wrap rounded border border-black p-3"
+      }
+      ref={host}
+    />
+  );
 };
 
 export default ScratchBlocks;

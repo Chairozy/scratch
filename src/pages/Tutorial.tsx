@@ -1,6 +1,8 @@
 import { createEffect, createSignal, For, Show, type Component } from "solid-js";
 import ScratchBlocks from "../components/ScratchBlocks";
 import StageMap from "../components/StageMap";
+import MoveArrowDemo from "../components/MoveArrowDemo";
+import ProjectFlow from "../components/ProjectFlow";
 import { exportTutorialPptx } from "../lib/exportPptx";
 import { getTutorial, type BlockGuide, type TutorialQuiz } from "../data/tutorials";
 
@@ -138,6 +140,11 @@ const Tutorial: Component<TutorialProps> = (props) => {
       {(t) => {
         return (
           <div class="mx-auto max-w-5xl px-4 py-6">
+            <Show when={t().flow}>
+              {(flow) => <ProjectFlow tutorial={t()} flow={flow()} />}
+            </Show>
+
+            <Show when={!t().flow}>
             {/* ===== Pendahuluan permasalahan ===== */}
             <Show when={t().intro}>
               {(intro) => (
@@ -146,6 +153,24 @@ const Tutorial: Component<TutorialProps> = (props) => {
                     Pendahuluan
                   </p>
                   <p class="mt-1 text-sm leading-relaxed">{intro()}</p>
+                </div>
+              )}
+            </Show>
+
+            {/* ===== Siluet blok sebagai tebak-tebakan ===== */}
+            <Show when={t().teaserCode}>
+              {(code) => (
+                <div class="print-hidden mx-auto mb-4 max-w-[210mm] border-2 border-black bg-black p-5 text-white md:p-6">
+                  <p class="text-xs font-bold uppercase tracking-widest text-neutral-400">
+                    Tebak dulu
+                  </p>
+                  <p class="mt-1 text-sm leading-relaxed">
+                    Ini siluet skrip yang akan kita susun. Coba tebak apa yang
+                    dilakukan tiap blok sebelum membuka materi di bawah.
+                  </p>
+                  <div class="mt-3">
+                    <ScratchBlocks code={code()} scale={0.9} />
+                  </div>
                 </div>
               )}
             </Show>
@@ -298,7 +323,7 @@ const Tutorial: Component<TutorialProps> = (props) => {
                   {(cast) => (
                     <div class="mt-4 border-t-2 border-black pt-4">
                       <h2 class="text-sm font-extrabold uppercase tracking-wide">
-                        Kenalan dengan para hewan
+                        {t().castTitle ?? "Kenalan dengan para hewan"}
                       </h2>
                       <ul class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <For each={cast()}>
@@ -380,18 +405,28 @@ const Tutorial: Component<TutorialProps> = (props) => {
                             <strong>Tujuan:</strong> {s.goal}
                           </p>
 
-                          <SectionContent guide={s.guide} steps={s.steps} />
+                          <Show when={s.demo === "move-arrow"}>
+                            <MoveArrowDemo />
+                          </Show>
 
-                          <h3 class="mt-4 text-sm font-extrabold uppercase tracking-wide">
-                            {s.codeTitle}
-                          </h3>
-                          <div class="mt-2">
-                            <ScratchBlocks code={s.code} />
-                          </div>
+                        <SectionContent guide={s.guide} steps={s.steps} />
 
-                          <p class="mt-3 border-l-4 border-black bg-neutral-100 p-3 text-sm">
-                            <strong>Tips:</strong> {s.tip}
-                          </p>
+                        <Show when={s.code}>
+                          {(code) => (
+                            <>
+                              <h3 class="mt-4 text-sm font-extrabold uppercase tracking-wide">
+                                {s.codeTitle}
+                              </h3>
+                              <div class="mt-2">
+                                <ScratchBlocks code={code()} />
+                              </div>
+                            </>
+                          )}
+                        </Show>
+
+                        <p class="mt-3 border-l-4 border-black bg-neutral-100 p-3 text-sm">
+                          <strong>Tips:</strong> {s.tip}
+                        </p>
                         </>
                       }
                     >
@@ -401,25 +436,32 @@ const Tutorial: Component<TutorialProps> = (props) => {
                             <strong>Tujuan:</strong> {s.goal}
                           </p>
 
-                          <SectionContent guide={s.guide} steps={s.steps} />
-                        </div>
-                        <div class="print:mt-4">
-                          <h3 class="text-sm font-extrabold uppercase tracking-wide">
-                            {s.codeTitle}
-                          </h3>
-                          <div class="mt-2">
-                            <ScratchBlocks code={s.code} />
-                          </div>
+                        <SectionContent guide={s.guide} steps={s.steps} />
+                      </div>
+                      <div class="print:mt-4">
+                        <Show when={s.code}>
+                          {(code) => (
+                            <>
+                              <h3 class="text-sm font-extrabold uppercase tracking-wide">
+                                {s.codeTitle}
+                              </h3>
+                              <div class="mt-2">
+                                <ScratchBlocks code={code()} />
+                              </div>
+                            </>
+                          )}
+                        </Show>
 
-                          <p class="mt-3 border-l-4 border-black bg-neutral-100 p-3 text-sm">
-                            <strong>Tips:</strong> {s.tip}
-                          </p>
+                        <p class="mt-3 border-l-4 border-black bg-neutral-100 p-3 text-sm">
+                          <strong>Tips:</strong> {s.tip}
+                        </p>
                         </div>
                       </div>
                     </Show>
                   </section>
                 )}
               </For>
+            </Show>
             </Show>
           </div>
         );

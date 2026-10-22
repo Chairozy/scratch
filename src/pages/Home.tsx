@@ -60,7 +60,9 @@ const Home: Component = () => (
               </h2>
               <p class="mt-1 text-sm leading-relaxed">{t.desc}</p>
               <p class="mt-3 text-xs font-semibold">
-                {t.sections.length} materi • ±{t.minutes} menit
+                {t.flow
+                  ? `${t.flow.paths.length} langkah • ±${t.minutes} menit`
+                  : `${t.sections.length} materi • ±${t.minutes} menit`}
               </p>
               <span class="mt-3 inline-block border-b-2 border-black text-sm font-bold">
                 Buka tutorial →
